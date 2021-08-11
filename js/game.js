@@ -97,6 +97,24 @@ function update() {
     }
 
     if (isPlaying && !(isHumanPlayerScored || isCpuPlayerScored)) {
+        /* CPU Player movement */
+        if (cpuPlayer.y > ball.y) {
+            cpuPlayer.setVelocityY(-300);
+        } else if (cpuPlayer.y < ball.y) {
+            cpuPlayer.setVelocityY(300);
+        } else {
+            cpuPlayer.setVelocityY(0);
+        }
+
+        /* Human Player movement */
+        if (keys.w.isDown || cursors.up.isDown) {
+            humanPlayer.setVelocityY(-300);
+        } else if (keys.s.isDown || cursors.down.isDown) {
+            humanPlayer.setVelocityY(300);
+        } else {
+            humanPlayer.setVelocityY(0);
+        }
+
         if (ball.body.x > cpuPlayer.body.x) {
             isPlaying = false;
             humanPlayer.score++;
@@ -105,6 +123,8 @@ function update() {
             ball.setVelocity(0, 0);
             victoryText.setText('Player scores!');
             victoryText.setVisible(true);
+            humanPlayer.setVelocityY(0);
+            cpuPlayer.setVelocityY(0);
         }
 
         if (ball.body.x < humanPlayer.body.x) {
@@ -115,18 +135,8 @@ function update() {
             ball.setVelocity(0, 0);
             victoryText.setText('CPU scores!');
             victoryText.setVisible(true);
-        }
-    }
-
-    humanPlayer.body.setVelocityY(0);
-    cpuPlayer.body.setVelocityY(0);
-
-    if (isPlaying && !(isHumanPlayerScored || isCpuPlayerScored)) {
-        if (keys.w.isDown || cursors.up.isDown) {
-            humanPlayer.body.setVelocityY(-300);
-        }
-        if (keys.s.isDown || cursors.down.isDown) {
-            humanPlayer.body.setVelocityY(300);
+            humanPlayer.setVelocityY(0);
+            cpuPlayer.setVelocityY(0);
         }
     }
 
