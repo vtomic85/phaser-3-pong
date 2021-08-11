@@ -19,19 +19,19 @@ const INITIAL_VELOCITY_Y = Phaser.Math.Between(0, 300);
 const VICTORY_FONT_STYLE = {fontSize: '32px', fill: '#00FFFF'};
 
 let ball;
-let player1, player2;
+let humanPlayer, cpuPlayer;
 let isPlaying = false;
-let isPlayer1Scored = false;
-let isPlayer2Scored = false;
+let isHumanPlayerScored = false;
+let isCpuPlayerScored = false;
 let cursors;
 let keys = {};
-let victoryText, player1ScoreText, player2ScoreText;
+let victoryText, humanPlayerScoreText, cpuPlayerScoreText;
 let initialBallX;
 let initialBallY;
-let initialPlayer1X;
-let initialPlayer1Y;
-let initialPlayer2X;
-let initialPlayer2Y;
+let initialHumanPlayerX;
+let initialHumanPlayerY;
+let initialCpuPlayerX;
+let initialCpuPlayerY;
 
 function preload() {
     this.load.image('ball', 'img/ball.png');
@@ -51,22 +51,22 @@ function create() {
 
     const ballWidth = ball.body.width;
 
-    initialPlayer1X = ballWidth / 2 + 10;
-    initialPlayer1Y = worldHeight / 2;
-    initialPlayer2X = worldWidth - (ballWidth / 2 + 10);
-    initialPlayer2Y = worldHeight / 2;
+    initialHumanPlayerX = ballWidth / 2 + 10;
+    initialHumanPlayerY = worldHeight / 2;
+    initialCpuPlayerX = worldWidth - (ballWidth / 2 + 10);
+    initialCpuPlayerY = worldHeight / 2;
 
-    player1 = this.physics.add.sprite(initialPlayer1X, initialPlayer1Y, 'paddle');
-    player1.setImmovable(true);
-    player1.setCollideWorldBounds(true);
-    player1.score = 0;
-    this.physics.add.collider(ball, player1, ballHitsPaddle);
+    humanPlayer = this.physics.add.sprite(initialHumanPlayerX, initialHumanPlayerY, 'paddle');
+    humanPlayer.setImmovable(true);
+    humanPlayer.setCollideWorldBounds(true);
+    humanPlayer.score = 0;
+    this.physics.add.collider(ball, humanPlayer, ballHitsPaddle);
 
-    player2 = this.physics.add.sprite(initialPlayer2X, initialPlayer2Y, 'paddle');
-    player2.setImmovable(true);
-    player2.setCollideWorldBounds(true);
-    player2.score = 0;
-    this.physics.add.collider(ball, player2, ballHitsPaddle);
+    cpuPlayer = this.physics.add.sprite(initialCpuPlayerX, initialCpuPlayerY, 'paddle');
+    cpuPlayer.setImmovable(true);
+    cpuPlayer.setCollideWorldBounds(true);
+    cpuPlayer.score = 0;
+    this.physics.add.collider(ball, cpuPlayer, ballHitsPaddle);
 
     cursors = this.input.keyboard.createCursorKeys();
     keys.w = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -77,75 +77,69 @@ function create() {
     victoryText.setVisible(false);
     victoryText.setOrigin(0.5);
 
-    player1ScoreText = this.add.text(100, 20, 'Player 1: 0');
-    player1ScoreText.setOrigin(0.5);
+    humanPlayerScoreText = this.add.text(100, 20, 'Player: 0');
+    humanPlayerScoreText.setOrigin(0.5);
 
-    player2ScoreText = this.add.text(worldWidth - 200, 20, 'Player 2: 0');
-    player2ScoreText.setOrigin(0.5);
+    cpuPlayerScoreText = this.add.text(worldWidth - 100, 20, 'CPU: 0');
+    cpuPlayerScoreText.setOrigin(0.5);
 }
 
 function update() {
     if (!isPlaying) {
         if (keys.space.isDown) {
-            ball.setVelocityX(isPlayer1Scored ? -INITIAL_VELOCITY_X : INITIAL_VELOCITY_X);
+            ball.setVelocityX(isHumanPlayerScored ? -INITIAL_VELOCITY_X : INITIAL_VELOCITY_X);
             ball.setVelocityY(INITIAL_VELOCITY_Y);
             isPlaying = true;
-            isPlayer1Scored = false;
-            isPlayer2Scored = false;
+            isHumanPlayerScored = false;
+            isCpuPlayerScored = false;
             victoryText.setVisible(false);
         }
     }
 
-    if (isPlaying && !(isPlayer1Scored || isPlayer2Scored)) {
-        if (ball.body.x > player2.body.x) {
+    if (isPlaying && !(isHumanPlayerScored || isCpuPlayerScored)) {
+        if (ball.body.x > cpuPlayer.body.x) {
             isPlaying = false;
-            player1.score++;
-            isPlayer1Scored = true;
-            isPlayer2Scored = false;
+            humanPlayer.score++;
+            isHumanPlayerScored = true;
+            isCpuPlayerScored = false;
             ball.setVelocity(0, 0);
-            victoryText.setText('Player 1 scores!');
+            victoryText.setText('Player scores!');
             victoryText.setVisible(true);
         }
 
-        if (ball.body.x < player1.body.x) {
+        if (ball.body.x < humanPlayer.body.x) {
             isPlaying = false;
-            player2.score++;
-            isPlayer1Scored = false;
-            isPlayer2Scored = true;
+            cpuPlayer.score++;
+            isHumanPlayerScored = false;
+            isCpuPlayerScored = true;
             ball.setVelocity(0, 0);
-            victoryText.setText('Player 2 scores!');
+            victoryText.setText('CPU scores!');
             victoryText.setVisible(true);
         }
     }
 
-    player1.body.setVelocityY(0);
-    player2.body.setVelocityY(0);
+    humanPlayer.body.setVelocityY(0);
+    cpuPlayer.body.setVelocityY(0);
 
-    if (isPlaying && !(isPlayer1Scored || isPlayer2Scored)) {
-        if (keys.w.isDown) {
-            player1.body.setVelocityY(-300);
+    if (isPlaying && !(isHumanPlayerScored || isCpuPlayerScored)) {
+        if (keys.w.isDown || cursors.up.isDown) {
+            humanPlayer.body.setVelocityY(-300);
         }
-        if (keys.s.isDown) {
-            player1.body.setVelocityY(300);
-        }
-        if (cursors.up.isDown) {
-            player2.body.setVelocityY(-300);
-        }
-        if (cursors.down.isDown) {
-            player2.body.setVelocityY(300);
+        if (keys.s.isDown || cursors.down.isDown) {
+            humanPlayer.body.setVelocityY(300);
         }
     }
 
-    if (isPlayer1Scored || isPlayer2Scored) {
+    if (isHumanPlayerScored || isCpuPlayerScored) {
         resetPositions();
     }
 }
 
 function resetPositions() {
-    player1ScoreText.setText('Player 1: ' + player1.score);
-    player2ScoreText.setText('Player 2: ' + player2.score);
-    player1.setPosition(initialPlayer1X, initialPlayer1Y);
-    player2.setPosition(initialPlayer2X, initialPlayer2Y);
+    humanPlayerScoreText.setText('Player: ' + humanPlayer.score);
+    cpuPlayerScoreText.setText('CPU: ' + cpuPlayer.score);
+    humanPlayer.setPosition(initialHumanPlayerX, initialHumanPlayerY);
+    cpuPlayer.setPosition(initialCpuPlayerX, initialCpuPlayerY);
     ball.setPosition(initialBallX, initialBallY);
 }
 
