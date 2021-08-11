@@ -1,11 +1,7 @@
 const config = {
     type: Phaser.AUTO,
-    parent: 'game',
-    width: 800,
-    height: 640,
     scale: {
         mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH
     },
     scene: {
         preload,
@@ -14,10 +10,6 @@ const config = {
     },
     physics: {
         default: 'arcade',
-        arcade: {
-            gravity: false,
-            debug: false
-        }
     }
 };
 
@@ -34,7 +26,6 @@ let isPlayer2Scored = false;
 let cursors;
 let keys = {};
 let victoryText, player1ScoreText, player2ScoreText;
-let startButton;
 let initialBallX;
 let initialBallY;
 let initialPlayer1X;
@@ -48,17 +39,22 @@ function preload() {
 }
 
 function create() {
-    initialBallX = this.physics.world.bounds.width / 2;
-    initialBallY = this.physics.world.bounds.height / 2;
+    const worldWidth = this.physics.world.bounds.width;
+    const worldHeight = this.physics.world.bounds.height;
+
+    initialBallX = worldWidth / 2;
+    initialBallY = worldHeight / 2;
 
     ball = this.physics.add.sprite(initialBallX, initialBallY, 'ball');
     ball.setCollideWorldBounds(true);
     ball.setBounce(1, 1);
 
-    initialPlayer1X = ball.body.width / 2 + 10;
-    initialPlayer1Y = this.physics.world.bounds.height / 2;
-    initialPlayer2X = this.physics.world.bounds.width - (ball.body.width / 2 + 10);
-    initialPlayer2Y = this.physics.world.bounds.height / 2;
+    const ballWidth = ball.body.width;
+
+    initialPlayer1X = ballWidth / 2 + 10;
+    initialPlayer1Y = worldHeight / 2;
+    initialPlayer2X = worldWidth - (ballWidth / 2 + 10);
+    initialPlayer2Y = worldHeight / 2;
 
     player1 = this.physics.add.sprite(initialPlayer1X, initialPlayer1Y, 'paddle');
     player1.setImmovable(true);
@@ -77,14 +73,14 @@ function create() {
     keys.s = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
     keys.space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-    victoryText = this.add.text(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2 - 50, '', VICTORY_FONT_STYLE);
+    victoryText = this.add.text(worldWidth / 2, worldHeight / 2 - 50, '', VICTORY_FONT_STYLE);
     victoryText.setVisible(false);
     victoryText.setOrigin(0.5);
 
     player1ScoreText = this.add.text(100, 20, 'Player 1: 0');
     player1ScoreText.setOrigin(0.5);
 
-    player2ScoreText = this.add.text(this.physics.world.bounds.width - 200, 20, 'Player 2: 0');
+    player2ScoreText = this.add.text(worldWidth - 200, 20, 'Player 2: 0');
     player2ScoreText.setOrigin(0.5);
 }
 
